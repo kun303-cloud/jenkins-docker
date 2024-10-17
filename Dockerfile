@@ -99,7 +99,7 @@ ARG JENKINS_VERSION
 ENV JENKINS_VERSION=${JENKINS_VERSION:-2.481}
 
 # jenkins.war checksum, download will be validated using it
-ARG JENKINS_SHA=910ea36cef37c45087e39d65e335988e036fccea47c79cc5a52e721a10cb1b49
+ARG JENKINS_SHA=74e5063fa19a68db8ec82e3e3a55100ce53f4f4104e5146a0bb2434c7a3e02c2
 
 # Can be used to customize where jenkins.war get downloaded from
 ARG JENKINS_URL=https://repo.jenkins-ci.org/public/org/jenkins-ci/main/jenkins-war/${JENKINS_VERSION}/jenkins-war-${JENKINS_VERSION}.war
@@ -123,6 +123,11 @@ RUN curl -fsSL ${PLUGIN_CLI_URL} -o /opt/jenkins-plugin-manager.jar \
   && sha256sum -c --strict /tmp/jenkins_sha \
   && rm -f /tmp/jenkins_sha
 
+RUN curl -fsSL https://pkgs.k8s.io/core:/stable:/v1.30/deb/Release.key | gpg --dearmor -o /etc/apt/keyrings/kubernetes-apt-keyring.gpg
+RUN echo "deb [signed-by=/etc/apt/keyrings/kubernetes-apt-keyring.gpg] https://pkgs.k8s.io/core:/stable:/v1.30/deb/ /" | tee /etc/apt/sources.list.d/kubernetes.list
+RUN apt update
+RUN apt -y install   kubectl
+  
 # for main web interface:
 EXPOSE ${http_port}
 
